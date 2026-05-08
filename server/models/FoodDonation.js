@@ -39,8 +39,7 @@ const foodDonationSchema = new mongoose.Schema({
     coordinates: {
       type: {
         type: String,
-        enum: ['Point'],
-        default: 'Point'
+        enum: ['Point']
       },
       coordinates: [Number] // [longitude, latitude]
     }

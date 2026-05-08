@@ -130,7 +130,7 @@ export default function RequestListing() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Food Requests</h1>
           <p className="text-lg text-gray-500">{requests.length} open request{requests.length !== 1 ? 's' : ''} from NGOs</p>
         </div>
-        {user && (
+        {user && user.userType === 'ngo' && (
           <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-md">
             <Plus size={18}/> Post Request
           </button>
@@ -172,19 +172,34 @@ export default function RequestListing() {
                 <div className="flex items-center text-sm text-gray-600 gap-2">
                   <MapPin size={15} className="text-gray-400"/>
                   <span className="truncate">{req.location}</span>
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(req.location || '')}`}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 underline text-xs ml-auto"
+                  >
+                    View Map
+                  </a>
                 </div>
                 <div className="flex items-center text-sm text-gray-600 gap-2">
                   <Calendar size={15} className="text-gray-400"/>
                   <span>{req.date}</span>
                 </div>
               </div>
-              <button
-                onClick={() => fulfillRequest(req._id)}
-                disabled={fulfilling === req._id || (user && req.ngoId?._id === user?._id)}
-                className="w-full bg-blue-50 text-blue-700 font-semibold py-3 rounded-xl hover:bg-blue-600 hover:text-white transition-colors duration-300 border border-blue-100 hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {fulfilling === req._id ? 'Processing...' : 'Fulfill This Request'}
-              </button>
+              
+              {(!user || user.userType === 'donor') ? (
+                <button
+                  onClick={() => fulfillRequest(req._id)}
+                  disabled={fulfilling === req._id}
+                  className="w-full bg-blue-50 text-blue-700 font-semibold py-3 rounded-xl hover:bg-blue-600 hover:text-white transition-colors duration-300 border border-blue-100 hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {fulfilling === req._id ? 'Processing...' : 'Fulfill This Request'}
+                </button>
+              ) : (
+                <div className="w-full text-center py-3 bg-gray-100 text-gray-500 rounded-xl text-sm font-medium border border-gray-200">
+                  Only donors can fulfill
+                </div>
+              )}
             </div>
           ))}
         </div>

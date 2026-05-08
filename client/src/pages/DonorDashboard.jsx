@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 function CreateDonationModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
     itemName: '', quantity: '', unit: 'kg', category: 'cooked',
-    address: '', expiryTime: '', startTime: '', endTime: '', notes: ''
+    address: '', expiryTime: '', startTime: '', endTime: '', notes: '', imageUrl: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +16,14 @@ function CreateDonationModal({ onClose, onCreated }) {
     setLoading(true);
     try {
       const payload = {
-        foodItems: [{ itemName: form.itemName, quantity: Number(form.quantity), unit: form.unit, category: form.category, expiryTime: form.expiryTime || undefined }],
+        foodItems: [{ 
+          itemName: form.itemName, 
+          quantity: Number(form.quantity), 
+          unit: form.unit, 
+          category: form.category, 
+          expiryTime: form.expiryTime || undefined,
+          image: form.imageUrl || undefined
+        }],
         pickupLocation: { address: form.address },
         availableTime: { startTime: form.startTime, endTime: form.endTime },
         notes: form.notes
@@ -76,6 +83,10 @@ function CreateDonationModal({ onClose, onCreated }) {
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Available Until *</label>
               <input required type="datetime-local" className="w-full border rounded-lg px-3 py-2 text-sm outline-none" value={form.endTime} onChange={e => setForm({...form, endTime: e.target.value})} />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Image URL (Optional)</label>
+              <input type="url" className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-500" placeholder="https://..." value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} />
             </div>
           </div>
           <button type="submit" disabled={loading} className="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50">
@@ -183,7 +194,18 @@ export default function DonorDashboard() {
                     <tr key={d._id} className="hover:bg-gray-50/50">
                       <td className="px-6 py-4 font-medium">{item?.itemName}</td>
                       <td className="px-6 py-4 text-gray-600">{item?.quantity} {item?.unit}</td>
-                      <td className="px-6 py-4 text-gray-600 max-w-[150px] truncate">{d.pickupLocation?.address}</td>
+                      <td className="px-6 py-4 text-gray-600 max-w-[150px] truncate">
+                        {d.pickupLocation?.address}
+                        <br/>
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.pickupLocation?.address || '')}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:text-blue-700 underline text-xs"
+                        >
+                          Map
+                        </a>
+                      </td>
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 text-xs font-bold rounded-md capitalize ${d.status === 'available' ? 'bg-orange-100 text-orange-700' : d.status === 'claimed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                           {d.status}

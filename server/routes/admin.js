@@ -2,7 +2,11 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const FoodDonation = require('../models/FoodDonation');
+const mongoose = require('mongoose');
 const { auth, adminOnly } = require('../middleware/auth');
+
+// Note: FoodRequest is defined in requests.js, we should access it via mongoose.models
+const FoodRequest = mongoose.models.FoodRequest;
 
 // Get system stats
 router.get('/stats', auth, adminOnly, async (req, res) => {
@@ -65,6 +69,28 @@ router.delete('/donations/:id', auth, adminOnly, async (req, res) => {
   try {
     await FoodDonation.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Donation removed' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
+// Get all requests
+router.get('/requests', auth, adminOnly, async (req, res) => {
+  try {
+    const requests = await FoodRequest.find().populate('ngoId', 'name email').sort({ createdAt: -1 });
+    res.json({ success: true, requests });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
+// Delete request
+router.delete('/requests/:id', auth, adminOnly, async (req, res) => {
+  try {
+    await FoodRequest.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Request removed' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server Error' });

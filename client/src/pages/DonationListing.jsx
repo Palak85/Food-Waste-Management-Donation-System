@@ -14,7 +14,7 @@ const CATEGORY_IMG = {
 function CreateDonationModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
     itemName: '', quantity: '', unit: 'kg', category: 'cooked',
-    address: '', expiryTime: '', startTime: '', endTime: '', notes: ''
+    address: '', expiryTime: '', startTime: '', endTime: '', notes: '', imageUrl: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +23,14 @@ function CreateDonationModal({ onClose, onCreated }) {
     setLoading(true);
     try {
       const payload = {
-        foodItems: [{ itemName: form.itemName, quantity: Number(form.quantity), unit: form.unit, category: form.category, expiryTime: form.expiryTime }],
+        foodItems: [{ 
+          itemName: form.itemName, 
+          quantity: Number(form.quantity), 
+          unit: form.unit, 
+          category: form.category, 
+          expiryTime: form.expiryTime || undefined,
+          image: form.imageUrl || undefined
+        }],
         pickupLocation: { address: form.address },
         availableTime: { startTime: form.startTime, endTime: form.endTime },
         notes: form.notes
@@ -91,6 +98,10 @@ function CreateDonationModal({ onClose, onCreated }) {
               <label className="text-sm font-medium text-gray-700 block mb-1">Available Until *</label>
               <input required type="datetime-local" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.endTime} onChange={e => setForm({...form, endTime: e.target.value})} />
             </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Image URL (Optional)</label>
+              <input type="url" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" placeholder="https://..." value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} />
+            </div>
             <div className="col-span-2">
               <label className="text-sm font-medium text-gray-700 block mb-1">Notes</label>
               <textarea rows="2" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" placeholder="Any special instructions..." value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
@@ -150,7 +161,7 @@ export default function DonationListing() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Available Donations</h1>
           <p className="text-lg text-gray-500">{donations.length} listing{donations.length !== 1 ? 's' : ''} available right now</p>
         </div>
-        {user && (
+        {user && user.userType === 'donor' && (
           <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-all shadow-md">
             <Plus size={18}/> Donate Food
           </button>
@@ -170,7 +181,7 @@ export default function DonationListing() {
             return (
               <div key={donation._id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
                 <div className="relative h-52 overflow-hidden">
-                  <img src={CATEGORY_IMG[item?.category] || CATEGORY_IMG.cooked} alt={item?.itemName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={item?.image || CATEGORY_IMG[item?.category] || CATEGORY_IMG.cooked} alt={item?.itemName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-green-700 flex items-center gap-1.5 shadow-sm capitalize">
                     <ChefHat size={14}/> {item?.category}
                   </div>
@@ -186,6 +197,14 @@ export default function DonationListing() {
                     <div className="flex items-center text-gray-600 text-sm gap-2">
                       <MapPin size={15} className="text-gray-400 shrink-0"/>
                       <span className="truncate">{donation.pickupLocation?.address}</span>
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(donation.pickupLocation?.address || '')}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700 underline text-xs ml-auto"
+                      >
+                        View Map
+                      </a>
                     </div>
                     {item?.expiryTime && (
                       <div className="flex items-center text-sm gap-2">
@@ -194,13 +213,20 @@ export default function DonationListing() {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => claimDonation(donation._id)}
-                    disabled={claiming === donation._id}
-                    className="w-full bg-gray-50 hover:bg-green-600 hover:text-white text-gray-900 border border-gray-200 hover:border-green-600 font-medium py-2.5 rounded-xl transition-all duration-300 disabled:opacity-60"
-                  >
-                    {claiming === donation._id ? 'Claiming...' : 'Claim Donation'}
-                  </button>
+                  
+                  {(!user || user.userType !== 'donor') ? (
+                    <button
+                      onClick={() => claimDonation(donation._id)}
+                      disabled={claiming === donation._id}
+                      className="w-full bg-gray-50 hover:bg-green-600 hover:text-white text-gray-900 border border-gray-200 hover:border-green-600 font-medium py-2.5 rounded-xl transition-all duration-300 disabled:opacity-60"
+                    >
+                      {claiming === donation._id ? 'Claiming...' : 'Claim Donation'}
+                    </button>
+                  ) : (
+                    <div className="w-full text-center py-2.5 bg-gray-100 text-gray-500 rounded-xl text-sm font-medium border border-gray-200">
+                      Donors cannot claim
+                    </div>
+                  )}
                 </div>
               </div>
             );
