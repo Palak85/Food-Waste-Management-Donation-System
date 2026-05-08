@@ -1,0 +1,10 @@
+{
+  "name": "food-waste-management-system",
+  "version": "1.0.0",
+  "description": "Food Waste Management & Donation System",
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "dev": "npm run client"
+  }
+}
