@@ -20,10 +20,9 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes
 // We'll create basic empty routes or comment them if they aren't created yet
 app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/donations', require('./routes/donations'));
-// app.use('/api/requests', require('./routes/requests'));
-// app.use('/api/users', require('./routes/users'));
-// app.use('/api/impact', require('./routes/impact'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/donations', require('./routes/donations'));
+app.use('/api/requests', require('./routes/requests'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
