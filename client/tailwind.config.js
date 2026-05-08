@@ -6,11 +6,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#10b981", // Green for sustainability
-        secondary: "#3b82f6",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        foreground: "hsl(var(--foreground))",
+        background: "hsl(var(--background))",
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans:  ['Inter', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+        cabin: ['Cabin', 'sans-serif'],
+        instrument: ['Instrument Serif', 'serif'],
       },
     },
   },

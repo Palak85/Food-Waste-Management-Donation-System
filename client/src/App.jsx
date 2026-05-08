@@ -4,6 +4,10 @@ import Navbar from './components/common/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import DonationListing from './pages/DonationListing';
+import RequestListing from './pages/RequestListing';
+import DonorDashboard from './pages/DonorDashboard';
+import NGODashboard from './pages/NGODashboard';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -17,6 +21,17 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/donations" element={<DonationListing />} />
+              <Route path="/requests" element={<RequestListing />} />
+              
+              <Route 
+                path="/donor-dashboard" 
+                element={<ProtectedRoute roles={['donor']}><DonorDashboard /></ProtectedRoute>} 
+              />
+              <Route 
+                path="/ngo-dashboard" 
+                element={<ProtectedRoute roles={['ngo']}><NGODashboard /></ProtectedRoute>} 
+              />
               
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
