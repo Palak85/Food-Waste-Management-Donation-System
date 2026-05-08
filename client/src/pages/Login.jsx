@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../hooks/useAuth';
 
@@ -77,6 +77,15 @@ export default function Login() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="••••••••"
             />
+          </div>
+
+          <div className="flex items-center justify-end">
+            <Link 
+              to="/forgot-password" 
+              className="text-sm font-medium text-green-600 hover:text-green-500"
+            >
+              Forgot your password?
+            </Link>
           </div>
 
           <button
