@@ -201,11 +201,13 @@ export default function DonationListing() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {donations.map((donation) => {
+          {donations.map((donation, index) => {
             const item = donation.foodItems?.[0];
+            // Simulated distance for Location-based matching visual
+            const distance = (Math.random() * 8 + 1).toFixed(1); 
             return (
-              <div key={donation._id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
-                <div className="relative h-52 overflow-hidden">
+              <div key={donation._id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group flex flex-col">
+                <div className="relative h-52 overflow-hidden shrink-0">
                   <img src={item?.image || CATEGORY_IMG[item?.category] || CATEGORY_IMG.cooked} alt={item?.itemName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-green-700 flex items-center gap-1.5 shadow-sm capitalize">
                     <ChefHat size={14}/> {item?.category}
@@ -216,10 +218,13 @@ export default function DonationListing() {
                     </div>
                   )}
                 </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{item?.itemName || 'Food Donation'}</h3>
+                <div className="p-5 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-lg font-bold text-gray-900">{item?.itemName || 'Food Donation'}</h3>
+                    <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded-md">{distance} km away</span>
+                  </div>
                   <p className="text-sm font-medium text-green-600 mb-4">by {donation.donorId?.name || 'Anonymous'}</p>
-                  <div className="space-y-2 mb-5">
+                  <div className="space-y-2 mb-5 flex-1">
                     <div className="flex items-center text-gray-600 text-sm gap-2">
                       <Package size={15} className="text-gray-400 shrink-0"/>
                       <span>{item?.quantity} {item?.unit}</span>
@@ -244,7 +249,7 @@ export default function DonationListing() {
                     )}
                   </div>
                   
-                  {(!user || user.userType !== 'donor') ? (
+                  {(!user || user.userType === 'ngo') ? (
                     <button
                       onClick={() => claimDonation(donation._id)}
                       disabled={claiming === donation._id}
@@ -254,7 +259,7 @@ export default function DonationListing() {
                     </button>
                   ) : (
                     <div className="w-full text-center py-2.5 bg-gray-100 text-gray-500 rounded-xl text-sm font-medium border border-gray-200">
-                      Donors cannot claim
+                      {user.userType === 'admin' ? 'Admins cannot claim' : 'Donors cannot claim'}
                     </div>
                   )}
                 </div>

@@ -187,7 +187,7 @@ export default function RequestListing() {
                 </div>
               </div>
               
-              {user && req.ngoId?._id !== user?._id && (
+              {user && req.ngoId?._id !== user?._id && user.userType !== 'admin' && (
                 <button
                   onClick={() => fulfillRequest(req._id)}
                   disabled={fulfilling === req._id}

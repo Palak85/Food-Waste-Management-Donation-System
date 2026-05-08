@@ -14,15 +14,28 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
     const usersCount = await User.countDocuments();
     const donationsCount = await FoodDonation.countDocuments();
     
-    // Total quantity (dummy logic, but functional for structure)
-    const activeDonations = await FoodDonation.find({ status: 'available' });
+    const allDonations = await FoodDonation.find();
+    let mealsSaved = 0;
+    let wasteReducedKg = 0;
+    
+    allDonations.forEach(d => {
+      d.foodItems.forEach(item => {
+        if (item.unit === 'kg') wasteReducedKg += item.quantity;
+        if (item.unit === 'plates' || item.unit === 'portions') mealsSaved += item.quantity;
+        else mealsSaved += (item.quantity * 2); // rough estimate for others
+      });
+    });
+    
+    const activeDonations = allDonations.filter(d => d.status === 'available');
     
     res.json({ 
       success: true, 
       stats: { 
         users: usersCount, 
         donations: donationsCount,
-        activeDonations: activeDonations.length
+        activeDonations: activeDonations.length,
+        mealsSaved,
+        wasteReducedKg
       }
     });
   } catch (err) {
