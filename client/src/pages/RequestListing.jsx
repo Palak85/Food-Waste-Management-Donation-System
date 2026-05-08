@@ -141,7 +141,7 @@ export default function RequestListing() {
         <div className="text-center py-20 text-gray-400">
           <Users size={48} className="mx-auto mb-4 opacity-40"/>
           <p className="text-xl font-medium">No open requests right now.</p>
-          {user && <button onClick={() => setShowModal(true)} className="mt-4 bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700">Post the first request</button>}
+          {user && user.userType === 'ngo' && <button onClick={() => setShowModal(true)} className="mt-4 bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700">Post the first request</button>}
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -187,7 +187,7 @@ export default function RequestListing() {
                 </div>
               </div>
               
-              {user && req.ngoId?._id !== user?._id && user.userType !== 'admin' && (
+              {user && user.userType === 'donor' && (
                 <button
                   onClick={() => fulfillRequest(req._id)}
                   disabled={fulfilling === req._id}

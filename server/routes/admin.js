@@ -2,11 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const FoodDonation = require('../models/FoodDonation');
-const mongoose = require('mongoose');
+const FoodRequest = require('../models/FoodRequest');
 const { auth, adminOnly } = require('../middleware/auth');
-
-// Note: FoodRequest is defined in requests.js, we should access it via mongoose.models
-const FoodRequest = mongoose.models.FoodRequest;
 
 // Get system stats
 router.get('/stats', auth, adminOnly, async (req, res) => {
@@ -19,10 +16,13 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
     let wasteReducedKg = 0;
     
     allDonations.forEach(d => {
+      if (!d.foodItems || !Array.isArray(d.foodItems)) return;
       d.foodItems.forEach(item => {
-        if (item.unit === 'kg') wasteReducedKg += item.quantity;
-        if (item.unit === 'plates' || item.unit === 'portions') mealsSaved += item.quantity;
-        else mealsSaved += (item.quantity * 2); // rough estimate for others
+        if (!item) return;
+        const qty = Number(item.quantity) || 0;
+        if (item.unit === 'kg') wasteReducedKg += qty;
+        if (item.unit === 'plates' || item.unit === 'portions') mealsSaved += qty;
+        else mealsSaved += (qty * 2);
       });
     });
     
@@ -39,8 +39,8 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error('ADMIN STATS ERROR:', err);
+    res.status(500).json({ success: false, message: 'Server Error', error: err.message });
   }
 });
 
@@ -50,8 +50,8 @@ router.get('/users', auth, adminOnly, async (req, res) => {
     const users = await User.find().select('-password').sort({ createdAt: -1 });
     res.json({ success: true, users });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error('ADMIN GET USERS ERROR:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch users', error: err.message });
   }
 });
 
@@ -69,11 +69,11 @@ router.delete('/users/:id', auth, adminOnly, async (req, res) => {
 // Get all donations
 router.get('/donations', auth, adminOnly, async (req, res) => {
   try {
-    const donations = await FoodDonation.find().populate('donor', 'name email').sort({ createdAt: -1 });
+    const donations = await FoodDonation.find().populate('donorId', 'name email').sort({ createdAt: -1 });
     res.json({ success: true, donations });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error('ADMIN GET DONATIONS ERROR:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch donations', error: err.message });
   }
 });
 
@@ -94,8 +94,8 @@ router.get('/requests', auth, adminOnly, async (req, res) => {
     const requests = await FoodRequest.find().populate('ngoId', 'name email').sort({ createdAt: -1 });
     res.json({ success: true, requests });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error('ADMIN GET REQUESTS ERROR:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch requests', error: err.message });
   }
 });
 

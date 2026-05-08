@@ -25,7 +25,8 @@ export default function AdminDashboard() {
       setDonations(donationsRes.data.donations);
       setRequests(requestsRes.data.requests);
     } catch (error) {
-      toast.error('Failed to load admin data. Are you an admin?');
+      console.error('ADMIN FETCH ERROR:', error.response?.data || error);
+      toast.error(error.response?.data?.message || 'Failed to load admin data. Are you an admin?');
     } finally {
       setLoading(false);
     }
@@ -169,8 +170,8 @@ export default function AdminDashboard() {
 
               {activeTab === 'donations' && donations.map(d => (
                 <tr key={d._id} className="hover:bg-gray-50/50">
-                  <td className="px-6 py-4 font-medium">{d.title}</td>
-                  <td className="px-6 py-4 text-gray-600">{d.donor?.name || 'Unknown'}</td>
+                  <td className="px-6 py-4 font-medium">{d.foodItems?.[0]?.itemName || 'Food Donation'}</td>
+                  <td className="px-6 py-4 text-gray-600">{d.donorId?.name || 'Unknown'}</td>
                   <td className="px-6 py-4"><span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs uppercase font-bold">{d.status}</span></td>
                   <td className="px-6 py-4 text-right">
                     <button onClick={() => deleteDonation(d._id)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><Trash2 size={18}/></button>

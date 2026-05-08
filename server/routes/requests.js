@@ -1,22 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+const FoodRequest = require('../models/FoodRequest');
 const { auth } = require('../middleware/auth');
-
-// Inline FoodRequest schema (no separate file needed yet)
-const foodRequestSchema = new mongoose.Schema({
-  ngoId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  title: { type: String, required: true },
-  description: String,
-  peopleToFeed: { type: Number, required: true },
-  urgency: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
-  location: { type: String, required: true },
-  date: { type: String, required: true },
-  status: { type: String, enum: ['open', 'fulfilled', 'cancelled'], default: 'open' },
-  fulfilledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-}, { timestamps: true });
-
-const FoodRequest = mongoose.models.FoodRequest || mongoose.model('FoodRequest', foodRequestSchema);
 
 // GET all open requests (public)
 router.get('/', async (req, res) => {
@@ -59,6 +44,10 @@ router.patch('/:id/fulfill', auth, async (req, res) => {
     if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
     if (request.status !== 'open') {
       return res.status(400).json({ success: false, message: 'Request is no longer open' });
+    }
+    
+    if (req.userType !== 'donor') {
+      return res.status(403).json({ success: false, message: 'Only donors can fulfill food requests' });
     }
     request.status = 'fulfilled';
     request.fulfilledBy = req.userId;

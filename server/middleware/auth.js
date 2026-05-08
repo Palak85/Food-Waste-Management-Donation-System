@@ -24,10 +24,11 @@ const auth = (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
+  console.log('Admin Access Check:', { userId: req.userId, userType: req.userType });
   if (req.userType !== 'admin') {
     return res.status(403).json({
       success: false,
-      message: 'Admin access required'
+      message: `Admin access required. Current role: ${req.userType}`
     });
   }
   next();
