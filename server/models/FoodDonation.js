@@ -26,6 +26,12 @@ const foodDonationSchema = new mongoose.Schema({
       enum: ['cooked', 'raw', 'packaged', 'beverage'],
       required: true
     },
+    foodType: {
+      type: String,
+      enum: ['Veg', 'Non-Veg', 'Both'],
+      default: 'Veg'
+    },
+    cookingTime: Date,
     description: String,
     image: String,
     expiryTime: Date
@@ -56,7 +62,7 @@ const foodDonationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'claimed', 'expired', 'cancelled'],
+    enum: ['available', 'claimed', 'accepted', 'picked_up', 'delivered', 'expired', 'cancelled'],
     default: 'available'
   },
   claimedBy: {

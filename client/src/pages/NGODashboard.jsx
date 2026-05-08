@@ -71,6 +71,7 @@ function CreateRequestModal({ onClose, onCreated }) {
 export default function NGODashboard() {
   const { user } = useAuth();
   const [requests, setRequests] = useState([]);
+  const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(null);
@@ -81,12 +82,34 @@ export default function NGODashboard() {
       setRequests(res.data.requests);
     } catch {
       toast.error('Could not load your requests');
+    }
+  };
+
+  const fetchMyClaims = async () => {
+    try {
+      const res = await api.get('/donations/my/claims');
+      setClaims(res.data.claims);
+    } catch {
+      toast.error('Could not load your claimed donations');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchMyRequests(); }, []);
+  useEffect(() => { 
+    fetchMyRequests(); 
+    fetchMyClaims();
+  }, []);
+
+  const updateClaimStatus = async (id, status) => {
+    try {
+      await api.patch(`/donations/${id}/status`, { status });
+      toast.success(`Status updated successfully!`);
+      fetchMyClaims();
+    } catch (err) {
+      toast.error('Failed to update tracking status');
+    }
+  };
 
   const deleteRequest = async (id) => {
     if (!window.confirm('Delete this request?')) return;
@@ -183,6 +206,68 @@ export default function NGODashboard() {
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Claimed Donations Tracking */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-10">
+        <div className="px-6 py-5 border-b border-gray-100 bg-green-50/30">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><Heart className="text-green-600" size={20}/> Active Food Pickups</h2>
+        </div>
+        {claims.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <CheckCircle size={40} className="mx-auto mb-3 opacity-40"/>
+            <p className="font-medium">You haven't claimed any donations yet.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-gray-50 border-b text-gray-500 text-sm">
+                  <th className="px-6 py-4">Food Item</th>
+                  <th className="px-6 py-4">Donor</th>
+                  <th className="px-6 py-4">Pickup Location</th>
+                  <th className="px-6 py-4">Current Status</th>
+                  <th className="px-6 py-4 text-right">Update Tracking</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {claims.map(c => {
+                  const item = c.foodItems?.[0];
+                  return (
+                    <tr key={c._id} className="hover:bg-gray-50/50">
+                      <td className="px-6 py-4 font-medium">{item?.itemName} <span className="text-xs text-gray-500 block">{item?.quantity} {item?.unit}</span></td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{c.donorId?.name}<br/>{c.donorId?.phone}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 max-w-[150px]">
+                        <span className="truncate block">{c.pickupLocation?.address}</span>
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.pickupLocation?.address || '')}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline text-xs">View Map</a>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 text-xs font-bold rounded-md capitalize ${
+                          c.status === 'accepted' || c.status === 'claimed' ? 'bg-blue-100 text-blue-700' : 
+                          c.status === 'picked_up' ? 'bg-purple-100 text-purple-700' :
+                          c.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {c.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        {(c.status === 'accepted' || c.status === 'claimed') && (
+                          <button onClick={() => updateClaimStatus(c._id, 'picked_up')} className="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-lg text-xs font-bold transition">Mark Picked Up</button>
+                        )}
+                        {c.status === 'picked_up' && (
+                          <button onClick={() => updateClaimStatus(c._id, 'delivered')} className="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-xs font-bold transition">Mark Delivered</button>
+                        )}
+                        {c.status === 'delivered' && (
+                          <span className="text-xs text-gray-400 italic">Completed</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

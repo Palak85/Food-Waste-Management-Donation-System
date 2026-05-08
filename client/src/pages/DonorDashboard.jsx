@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 function CreateDonationModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
     itemName: '', quantity: '', unit: 'kg', category: 'cooked',
+    foodType: 'Veg', cookingTime: '',
     address: '', expiryTime: '', startTime: '', endTime: '', notes: '', imageBase64: ''
   });
   const [loading, setLoading] = useState(false);
@@ -35,6 +36,8 @@ function CreateDonationModal({ onClose, onCreated }) {
           quantity: Number(form.quantity), 
           unit: form.unit, 
           category: form.category, 
+          foodType: form.foodType,
+          cookingTime: form.cookingTime || undefined,
           expiryTime: form.expiryTime || undefined,
           image: form.imageBase64 || undefined
         }],
@@ -81,6 +84,16 @@ function CreateDonationModal({ onClose, onCreated }) {
               <select className="w-full border rounded-lg px-3 py-2 text-sm outline-none" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
                 <option value="cooked">Cooked</option><option value="raw">Raw Produce</option><option value="packaged">Packaged</option><option value="beverage">Beverage</option>
               </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Food Type *</label>
+              <select className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-500" value={form.foodType} onChange={e => setForm({...form, foodType: e.target.value})}>
+                <option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option><option value="Both">Both</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Prepared/Cooked At</label>
+              <input type="datetime-local" max={currentDateTime} className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-500" value={form.cookingTime} onChange={e => setForm({...form, cookingTime: e.target.value})} />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Expires At</label>
@@ -222,8 +235,14 @@ export default function DonorDashboard() {
                         </a>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 text-xs font-bold rounded-md capitalize ${d.status === 'available' ? 'bg-orange-100 text-orange-700' : d.status === 'claimed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                          {d.status}
+                        <span className={`px-2.5 py-1 text-xs font-bold rounded-md capitalize ${
+                          d.status === 'available' ? 'bg-orange-100 text-orange-700' : 
+                          d.status === 'accepted' || d.status === 'claimed' ? 'bg-blue-100 text-blue-700' : 
+                          d.status === 'picked_up' ? 'bg-purple-100 text-purple-700' :
+                          d.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {d.status.replace('_', ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-600 text-sm">{d.claimedBy?.name || '—'}</td>

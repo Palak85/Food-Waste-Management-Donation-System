@@ -14,6 +14,7 @@ const CATEGORY_IMG = {
 function CreateDonationModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
     itemName: '', quantity: '', unit: 'kg', category: 'cooked',
+    foodType: 'Veg', cookingTime: '',
     address: '', expiryTime: '', startTime: '', endTime: '', notes: '', imageBase64: ''
   });
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,8 @@ function CreateDonationModal({ onClose, onCreated }) {
           quantity: Number(form.quantity), 
           unit: form.unit, 
           category: form.category, 
+          foodType: form.foodType,
+          cookingTime: form.cookingTime || undefined,
           expiryTime: form.expiryTime || undefined,
           image: form.imageBase64 || undefined
         }],
@@ -90,11 +93,18 @@ function CreateDonationModal({ onClose, onCreated }) {
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Category *</label>
               <select className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
-                <option value="cooked">Cooked</option>
-                <option value="raw">Raw Produce</option>
-                <option value="packaged">Packaged</option>
-                <option value="beverage">Beverage</option>
+                <option value="cooked">Cooked</option><option value="raw">Raw Produce</option><option value="packaged">Packaged</option><option value="beverage">Beverage</option>
               </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Food Type *</label>
+              <select className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.foodType} onChange={e => setForm({...form, foodType: e.target.value})}>
+                <option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option><option value="Both">Both</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Prepared/Cooked At</label>
+              <input type="datetime-local" max={currentDateTime} className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.cookingTime} onChange={e => setForm({...form, cookingTime: e.target.value})} />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Expires At</label>
@@ -200,6 +210,11 @@ export default function DonationListing() {
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-green-700 flex items-center gap-1.5 shadow-sm capitalize">
                     <ChefHat size={14}/> {item?.category}
                   </div>
+                  {item?.foodType && (
+                    <div className={`absolute top-4 right-4 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold shadow-sm ${item.foodType === 'Veg' ? 'bg-green-100/90 text-green-700' : item.foodType === 'Non-Veg' ? 'bg-red-100/90 text-red-700' : 'bg-yellow-100/90 text-yellow-700'}`}>
+                      {item.foodType}
+                    </div>
+                  )}
                 </div>
                 <div className="p-5">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{item?.itemName || 'Food Donation'}</h3>

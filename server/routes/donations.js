@@ -58,7 +58,7 @@ router.patch('/:id/claim', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Donation is no longer available' });
     }
 
-    donation.status = 'claimed';
+    donation.status = 'accepted';
     donation.claimedBy = req.userId;
     donation.claimedAt = new Date();
     await donation.save();
@@ -91,6 +91,38 @@ router.get('/my/donations', auth, async (req, res) => {
       .populate('claimedBy', 'name email')
       .sort({ createdAt: -1 });
     res.json({ success: true, donations });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// GET my claims (for NGO dashboard)
+router.get('/my/claims', auth, async (req, res) => {
+  try {
+    const claims = await FoodDonation.find({ claimedBy: req.userId })
+      .populate('donorId', 'name email phone')
+      .sort({ claimedAt: -1 });
+    res.json({ success: true, claims });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH update donation status (for tracking flow)
+router.patch('/:id/status', auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const donation = await FoodDonation.findById(req.params.id);
+    if (!donation) return res.status(404).json({ success: false, message: 'Not found' });
+    
+    // Only claimant can update status to picked_up or delivered
+    if (donation.claimedBy.toString() !== req.userId) {
+      return res.status(403).json({ success: false, message: 'Unauthorized to update this delivery' });
+    }
+
+    donation.status = status;
+    await donation.save();
+    res.json({ success: true, donation });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }
