@@ -16,13 +16,10 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
     let wasteReducedKg = 0;
     
     allDonations.forEach(d => {
-      if (!d.foodItems || !Array.isArray(d.foodItems)) return;
-      d.foodItems.forEach(item => {
-        if (!item) return;
-        const qty = Number(item.quantity) || 0;
-        if (item.unit === 'kg') wasteReducedKg += qty;
-        if (item.unit === 'plates' || item.unit === 'portions') mealsSaved += qty;
-        else mealsSaved += (qty * 2);
+      d.foodItems?.forEach(item => {
+        if (item.unit === 'kg') wasteReducedKg += (item.quantity || 0);
+        if (item.unit === 'plates' || item.unit === 'portions') mealsSaved += item.quantity;
+        else mealsSaved += (item.quantity * 2); // rough estimate for others
       });
     });
     
@@ -50,8 +47,8 @@ router.get('/users', auth, adminOnly, async (req, res) => {
     const users = await User.find().select('-password').sort({ createdAt: -1 });
     res.json({ success: true, users });
   } catch (err) {
-    console.error('ADMIN GET USERS ERROR:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch users', error: err.message });
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
@@ -72,8 +69,8 @@ router.get('/donations', auth, adminOnly, async (req, res) => {
     const donations = await FoodDonation.find().populate('donorId', 'name email').sort({ createdAt: -1 });
     res.json({ success: true, donations });
   } catch (err) {
-    console.error('ADMIN GET DONATIONS ERROR:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch donations', error: err.message });
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
@@ -94,8 +91,8 @@ router.get('/requests', auth, adminOnly, async (req, res) => {
     const requests = await FoodRequest.find().populate('ngoId', 'name email').sort({ createdAt: -1 });
     res.json({ success: true, requests });
   } catch (err) {
-    console.error('ADMIN GET REQUESTS ERROR:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch requests', error: err.message });
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 

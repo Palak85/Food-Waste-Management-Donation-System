@@ -81,4 +81,4 @@ const foodDonationSchema = new mongoose.Schema({
 foodDonationSchema.index({ 'pickupLocation.coordinates': '2dsphere' });
 foodDonationSchema.index({ createdAt: -1 });
 
-module.exports = mongoose.models.FoodDonation || mongoose.model('FoodDonation', foodDonationSchema);
+module.exports = mongoose.model('FoodDonation', foodDonationSchema);
