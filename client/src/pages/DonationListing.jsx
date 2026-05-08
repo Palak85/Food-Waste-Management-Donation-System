@@ -14,9 +14,23 @@ const CATEGORY_IMG = {
 function CreateDonationModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
     itemName: '', quantity: '', unit: 'kg', category: 'cooked',
-    address: '', expiryTime: '', startTime: '', endTime: '', notes: '', imageUrl: ''
+    address: '', expiryTime: '', startTime: '', endTime: '', notes: '', imageBase64: ''
   });
   const [loading, setLoading] = useState(false);
+
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const currentDateTime = now.toISOString().slice(0, 16);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) return toast.error("Image must be less than 5MB");
+      const reader = new FileReader();
+      reader.onloadend = () => setForm({ ...form, imageBase64: reader.result });
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +43,7 @@ function CreateDonationModal({ onClose, onCreated }) {
           unit: form.unit, 
           category: form.category, 
           expiryTime: form.expiryTime || undefined,
-          image: form.imageUrl || undefined
+          image: form.imageBase64 || undefined
         }],
         pickupLocation: { address: form.address },
         availableTime: { startTime: form.startTime, endTime: form.endTime },
@@ -84,7 +98,7 @@ function CreateDonationModal({ onClose, onCreated }) {
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Expires At</label>
-              <input type="datetime-local" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.expiryTime} onChange={e => setForm({...form, expiryTime: e.target.value})} />
+              <input type="datetime-local" min={currentDateTime} className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.expiryTime} onChange={e => setForm({...form, expiryTime: e.target.value})} />
             </div>
             <div className="col-span-2">
               <label className="text-sm font-medium text-gray-700 block mb-1">Pickup Address *</label>
@@ -92,15 +106,16 @@ function CreateDonationModal({ onClose, onCreated }) {
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Available From *</label>
-              <input required type="datetime-local" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.startTime} onChange={e => setForm({...form, startTime: e.target.value})} />
+              <input required type="datetime-local" min={currentDateTime} className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.startTime} onChange={e => setForm({...form, startTime: e.target.value})} />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Available Until *</label>
-              <input required type="datetime-local" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.endTime} onChange={e => setForm({...form, endTime: e.target.value})} />
+              <input required type="datetime-local" min={form.startTime || currentDateTime} className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" value={form.endTime} onChange={e => setForm({...form, endTime: e.target.value})} />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">Image URL (Optional)</label>
-              <input type="url" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" placeholder="https://..." value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} />
+              <label className="text-sm font-medium text-gray-700 block mb-1">Upload Image (Optional)</label>
+              <input type="file" accept="image/*" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none" onChange={handleImageChange} />
+              {form.imageBase64 && <p className="text-xs text-green-600 mt-1">Image selected successfully!</p>}
             </div>
             <div className="col-span-2">
               <label className="text-sm font-medium text-gray-700 block mb-1">Notes</label>

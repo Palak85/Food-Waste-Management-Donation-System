@@ -10,6 +10,7 @@ import RequestListing from './pages/RequestListing';
 import DonorDashboard from './pages/DonorDashboard';
 import NGODashboard from './pages/NGODashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -25,7 +26,23 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/donations" element={<DonationListing />} />
-              <Route path="/requests" element={<RequestListing />} />
+              <Route 
+                path="/requests" 
+                element={
+                  <ProtectedRoute roles={['ngo', 'admin', 'volunteer']}>
+                    <RequestListing />
+                  </ProtectedRoute>
+                } 
+              />
+
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
               
               <Route 
                 path="/donor-dashboard" 

@@ -22,12 +22,26 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex space-x-6 items-center">
+            <Link to="/" className="text-gray-700 hover:text-green-600 font-medium">Home</Link>
             <Link to="/donations" className="text-gray-700 hover:text-green-600 font-medium">Donations</Link>
-            <Link to="/requests" className="text-gray-700 hover:text-green-600 font-medium">Requests</Link>
+            {user?.userType !== 'donor' && (
+              <Link to="/requests" className="text-gray-700 hover:text-green-600 font-medium">Requests</Link>
+            )}
+            
+            {user && (
+              <Link 
+                to={user.userType === 'donor' ? '/donor-dashboard' : user.userType === 'ngo' ? '/ngo-dashboard' : '/admin-dashboard'} 
+                className="text-gray-700 hover:text-green-600 font-medium"
+              >
+                Dashboard
+              </Link>
+            )}
             
             {user ? (
               <>
-                <span className="text-gray-700 font-medium">Hi, {user.name}</span>
+                <Link to="/profile" className="text-gray-700 hover:text-green-600 font-medium transition flex items-center gap-1">
+                  Hi, {user.name}
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 text-gray-700 hover:text-red-600 font-medium transition"
@@ -51,15 +65,31 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden pb-4 pt-2 space-y-3 px-2 border-t mt-2">
+            <Link to="/" className="block text-gray-700 hover:text-green-600 font-medium px-2 py-1">Home</Link>
             <Link to="/donations" className="block text-gray-700 hover:text-green-600 font-medium px-2 py-1">Donations</Link>
-            <Link to="/requests" className="block text-gray-700 hover:text-green-600 font-medium px-2 py-1">Requests</Link>
+            {user?.userType !== 'donor' && (
+              <Link to="/requests" className="block text-gray-700 hover:text-green-600 font-medium px-2 py-1">Requests</Link>
+            )}
+            {user && (
+              <Link 
+                to={user.userType === 'donor' ? '/donor-dashboard' : user.userType === 'ngo' ? '/ngo-dashboard' : '/admin-dashboard'} 
+                className="block text-gray-700 hover:text-green-600 font-medium px-2 py-1"
+              >
+                Dashboard
+              </Link>
+            )}
+            
             {user ? (
-              <button onClick={handleLogout} className="flex items-center gap-2 w-full text-left text-red-600 font-medium px-2 py-1">
-                <LogOut size={18} /> Logout
-              </button>
+              <div className="pt-2 border-t mt-2">
+                <Link to="/profile" className="block text-gray-700 hover:text-green-600 font-medium px-2 py-1 mb-2">
+                  My Profile ({user.name})
+                </Link>
+                <button onClick={handleLogout} className="flex items-center gap-2 w-full text-left text-red-600 font-medium px-2 py-1">
+                  <LogOut size={18} /> Logout
+                </button>
+              </div>
             ) : (
               <div className="flex flex-col gap-2 pt-2 border-t">
                 <Link to="/login" className="block text-center text-gray-700 font-medium py-2 border rounded-lg">Login</Link>

@@ -187,7 +187,7 @@ export default function RequestListing() {
                 </div>
               </div>
               
-              {(!user || user.userType === 'donor') ? (
+              {user && req.ngoId?._id !== user?._id && (
                 <button
                   onClick={() => fulfillRequest(req._id)}
                   disabled={fulfilling === req._id}
@@ -195,10 +195,6 @@ export default function RequestListing() {
                 >
                   {fulfilling === req._id ? 'Processing...' : 'Fulfill This Request'}
                 </button>
-              ) : (
-                <div className="w-full text-center py-3 bg-gray-100 text-gray-500 rounded-xl text-sm font-medium border border-gray-200">
-                  Only donors can fulfill
-                </div>
               )}
             </div>
           ))}
