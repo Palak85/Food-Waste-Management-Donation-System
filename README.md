@@ -1,7 +1,9 @@
 # Food Waste Management & Donation System
 
 ## Overview
-The Food Waste Management & Donation System is a full-stack web application designed to connect food donors (like restaurants, event organizers, and individuals) with receivers (charities, NGOs, and people in need). The goal is to reduce food waste by facilitating seamless food donations and requests.
+The Food Waste Management & Donation System is a full-stack web application designed to connect food donors (like restaurants, event organizers, and individuals) with receivers (charities, NGOs, and people in need). The goal is to reduce food waste by facilitating seamless food donations and requests.   
+
+Live Link :- https://food-waste-management-donation-system.onrender.com
 
 ## Key Features
 - **User Authentication**: Secure sign-up and login using JWT.
